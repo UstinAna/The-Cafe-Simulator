@@ -4,9 +4,6 @@ import sys
 # Initialize Pygame
 pygame.init()
 
-# Initialize the game and mouse
-running = True
-
 # Set up display
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -29,12 +26,10 @@ BUTTON_FONT = pygame.font.Font(None, BASE_FONT_SIZE)
 # Pixel size for the pixelated effect
 PIXEL_SIZE = 5
 
-# Menu options
+# Menu options ###############################################################
 menu_options = ["Start Game", "Settings", "Exit"]
 menu_buttons = []
-
-# Variable to track the currently selected (hovered) menu option
-selected_main = -1
+selected_main = -1 # default selected option while mouse not hovering them
 
 def draw_menu():
     screen.fill(SCREEN_COLOR)
@@ -77,18 +72,20 @@ def main_menu():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if selected_main == 0:  # Start Game selected
                     game()
                 elif selected_main == 2:  # Exit selected
-                    running = False
+                    pygame.quit()
                     sys.exit()
                 elif selected_main == 1:  # Settings selected
                     setting()
 
         draw_menu()
+
+# Game #######################################################################
 
 def draw_game():
     screen.fill(SCREEN_COLOR)
@@ -107,12 +104,12 @@ def game():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
                 sys.exit()
 
         draw_game()
 
-# Setting options
+# Setting options ##############################################################
 setting_options = ["Sound"]
 
 def draw_setting():
@@ -142,7 +139,7 @@ def setting():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                pygame.quit()
                 sys.exit()
 
         draw_setting()
