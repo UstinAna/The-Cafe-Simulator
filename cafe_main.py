@@ -9,13 +9,23 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cafe Simulator")
 
-# Set up sound and music
-my_sound = pygame.mixer.Sound("asset/ordinary-loop-minimal-piano-182046.mp3")
-my_sound.play(-1)
-my_sound.set_volume(1)
+# Load and set up sound and music
+try:
+    my_music = pygame.mixer.Sound("asset/ordinary-loop-minimal-piano-182046.mp3")
+    my_music.play(-1)
+    my_music.set_volume(1)
+except pygame.error:
+    print("Error loading music file.")
+    
+try:
+    my_sound = pygame.mixer.Sound("asset/chinese-beat-190047.mp3")
+    my_sound.set_volume(1)
+    my_sound.play(-1)
+except pygame.error:
+    print("Error loading sound file.")
 
 # Set up fonts and colors
-BASE_FONT_SIZE = 20
+BASE_FONT_SIZE = 18
 TITLE_COLOR = (255, 0, 255)
 UNSELECTED_COLOR = (100, 100, 100)
 SELECTED_COLOR = (255, 215, 0)
@@ -26,30 +36,31 @@ BUTTON_FONT = pygame.font.Font(None, BASE_FONT_SIZE)
 # Pixel size for the pixelated effect
 PIXEL_SIZE = 5
 
-# Menu options ###############################################################
+# Menu options
 menu_options = ["Start Game", "Settings", "Exit"]
 menu_buttons = []
-selected_main = -1 # default selected option while mouse not hovering them
+selected_main = -1  # default selected option while mouse not hovering them
+
+def render_text(text, font, color, scale_factor):
+    surface = font.render(text, True, color)
+    scaled_surface = pygame.transform.scale(surface, 
+                                            (surface.get_width() * scale_factor, surface.get_height() * scale_factor))
+    return scaled_surface
 
 def draw_menu():
     screen.fill(SCREEN_COLOR)
     
     # Title
     title_text = "Cafe Simulator"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
+    scaled_title = render_text(title_text, TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
+    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 6))
     screen.blit(scaled_title, title_rect.topleft)
 
     # Menu options
     menu_buttons.clear()  # Clear previous button rects
     for i, option in enumerate(menu_options):
         color = SELECTED_COLOR if i == selected_main else UNSELECTED_COLOR
-        option_surface = BUTTON_FONT.render(option, True, color)
-        scaled_option = pygame.transform.scale(option_surface, 
-                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
-                                                 * PIXEL_SIZE))
+        scaled_option = render_text(option, BUTTON_FONT, color, PIXEL_SIZE)
         option_rect = scaled_option.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
         menu_buttons.append(option_rect)  # Store button rect
         screen.blit(scaled_option, option_rect.topleft)
@@ -58,9 +69,8 @@ def draw_menu():
 
 def main_menu():
     global selected_main
-    global running
 
-    while running:
+    while True:
         mouse_x, mouse_y = pygame.mouse.get_pos()  # Update mouse position
         selected_main = -1  # Reset selected_main
 
@@ -85,22 +95,16 @@ def main_menu():
 
         draw_menu()
 
-# Game #######################################################################
-
+# Game
 def draw_game():
     screen.fill(SCREEN_COLOR)
-    title_text = "GAME"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
+    scaled_title = render_text("GAME", TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
+    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 6))
     screen.blit(scaled_title, title_rect.topleft)
 
     pygame.display.flip()
 
 def game():
-    global running
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -109,38 +113,73 @@ def game():
 
         draw_game()
 
-# Setting options ##############################################################
-setting_options = ["Sound"]
+# Setting options
+setting_options = ["Music", "Sound"]
+
+# Slider settings
+slider_pos = [my_music.get_volume(), my_sound.get_volume()]  # Slider position (0.0 to 1.0)
+slider_x = [0, 0]
+slider_y = [0, 0]
+slider_width = 300
+slider_height = 10
+handle_width = 20
+handle_height = 30
+SLIDER_COLOR = (200, 200, 200)
+HANDLE_COLOR = TITLE_COLOR
 
 def draw_setting():
     screen.fill(SCREEN_COLOR)
-    title_text = "SETTINGS"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
+    scaled_title = render_text("SETTINGS", TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
+    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 6))
     screen.blit(scaled_title, title_rect.topleft)
 
     # Setting options
     for i, option in enumerate(setting_options):
         color = TITLE_COLOR
-        option_surface = BUTTON_FONT.render(option, True, color)
-        scaled_option = pygame.transform.scale(option_surface, 
-                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
-                                                 * PIXEL_SIZE))
-        option_rect = scaled_option.get_rect(center=(len(option) * BASE_FONT_SIZE + 30, HEIGHT // 2 + i * 80))
+        hight = HEIGHT // 3
+        option_text = option + " " + str(int(slider_pos[i] * 100))
+        scaled_option = render_text(option_text, BUTTON_FONT, color, PIXEL_SIZE)
+        option_rect = scaled_option.get_rect(topleft=(50, hight + i * 80))
         screen.blit(scaled_option, option_rect.topleft)
+        
+        # Draw slider
+        option_rect2 = scaled_option.get_rect(topleft=(400, hight + i * 80 - 30 - slider_height // 2))
+        slider_x[i] = option_rect2.bottomleft[0] + 10
+        slider_y[i] = option_rect2.bottomleft[1] - handle_height // 2 + slider_height // 2
+        pygame.draw.rect(screen, SLIDER_COLOR, (slider_x[i], slider_y[i] + 10, slider_width, slider_height))
+        handle_x = slider_x[i] + slider_pos[i] * slider_width - handle_width // 2
+        pygame.draw.rect(screen, HANDLE_COLOR, (handle_x, slider_y[i], handle_width, handle_height))
 
     pygame.display.flip()
 
 def setting():
-    global running
-
+    global slider_pos
+    adjusting = False  # Track if the user is adjusting the slider
+    selected_slider = None  # Track which slider is being adjusted
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                for i in range(len(setting_options)):
+                    handle_x = slider_x[i] + slider_pos[i] * slider_width - handle_width // 2
+                    if handle_x <= event.pos[0] <= handle_x + handle_width and slider_y[i] <= event.pos[1] <= slider_y[i] + handle_height:
+                        adjusting = True
+                        selected_slider = i
+                        break
+            elif event.type == pygame.MOUSEBUTTONUP:
+                adjusting = False
+                selected_slider = None
+            elif event.type == pygame.MOUSEMOTION and adjusting:
+                if selected_slider is not None:
+                    new_pos = (event.pos[0] - slider_x[selected_slider]) / slider_width
+                    slider_pos[selected_slider] = max(0, min(1, new_pos))  # Clamp value between 0 and 1
+                    if selected_slider == 0:
+                        my_music.set_volume(slider_pos[selected_slider])
+                    elif selected_slider == 1:
+                        my_sound.set_volume(slider_pos[selected_slider])
 
         draw_setting()
 
