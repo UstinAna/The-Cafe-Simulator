@@ -4,144 +4,67 @@ import sys
 # Initialize Pygame
 pygame.init()
 
-#Initialize the game and mouse
+# Set up display
+width, height = 400, 300
+window = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Pygame Slider")
+
+# Colors
+TEXT_COLOR = (0, 0, 0)
+SCREEN_COLOR = (255, 255, 255)
+BAR_COLOR = (200, 200, 200)
+HANDLE_COLOR = (0, 0, 255)
+
+def create_slider(x, y, width, min_value, max_value, current_value):
+    slider_rect = pygame.Rect(x, y, width, 10)
+    handle_width = 20
+    handle_height = 30
+    handle_x = x + int((current_value - min_value) / (max_value - min_value) * (width - handle_width))
+    handle_y = y - (handle_height // 2 - 5)
+    handle_rect = pygame.Rect(handle_x, handle_y, handle_width, handle_height)
+    return slider_rect, handle_rect, min_value, max_value, current_value
+
+def draw_slider(window, slider_rect, handle_rect):
+    pygame.draw.rect(window, BAR_COLOR, slider_rect)  # Draw slider bar
+    pygame.draw.rect(window, HANDLE_COLOR, handle_rect)  # Draw handle
+
+def update_slider(slider_rect, handle_rect, min_value, max_value):
+    mouse_x, _ = pygame.mouse.get_pos()
+    handle_rect.x = max(slider_rect.x, min(mouse_x - handle_rect.width // 2, slider_rect.x + slider_rect.width - handle_rect.width))
+    value = min_value + (handle_rect.x - slider_rect.x) / (slider_rect.width - handle_rect.width) * (max_value - min_value)
+    return value
+
+# Running the game loop
 running = True
 dragging = False
 
-# Set up display
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Cafe Simulator")
+# Create a slider
+slider, handle, min_value, max_value, value = create_slider(50, height // 2, 300, 0, 100, 50)
 
-# Set up fonts and colors
-BASE_FONT_SIZE = 20
-TITLE_COLOR = (255, 0, 255)
-UNSELECTED_COLOR = (100, 100, 100)
-SELECTED_COLOR = (255, 215, 0)
-SCREEN_COLOR = (0, 0, 0)
-TITLE_FONT = pygame.font.Font(None, BASE_FONT_SIZE)
-BUTTON_FONT = pygame.font.Font(None, BASE_FONT_SIZE)
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if handle.collidepoint(event.pos):
+                dragging = True
+        elif event.type == pygame.MOUSEBUTTONUP:
+            dragging = False
+        elif event.type == pygame.MOUSEMOTION:
+            if dragging:
+                value = update_slider(slider, handle, min_value, max_value)
 
-# Pixel size for the pixelated effect
-PIXEL_SIZE = 5
+    # Drawing
+    window.fill(SCREEN_COLOR)
+    draw_slider(window, slider, handle)
 
-# Menu options
-menu_options = ["Start Game", "Exit", "Settings"]
-selected_main = 0
-
-def draw_menu():
-    screen.fill(SCREEN_COLOR)
-    
-    # Title
-    title_text = "Cafe Simulator"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
-    screen.blit(scaled_title, title_rect.topleft)
-
-    # Menu options
-    for i, option in enumerate(menu_options):
-        color = SELECTED_COLOR if i == selected_main else UNSELECTED_COLOR
-        option_surface = BUTTON_FONT.render(option, True, color)
-        scaled_option = pygame.transform.scale(option_surface, 
-                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
-                                                 * PIXEL_SIZE))
-        option_rect = scaled_option.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
-        screen.blit(scaled_option, option_rect.topleft)
+    # Display value
+    font = pygame.font.SysFont(None, 36)
+    value_text = font.render(f"Value: {int(value)}", True, TEXT_COLOR)
+    window.blit(value_text, (slider.x, slider.y + 50))
 
     pygame.display.flip()
 
-def main_menu():
-    global selected_main
-    global running
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    selected_main = (selected_main - 1) % len(menu_options)
-                elif event.key == pygame.K_DOWN:
-                    selected_main = (selected_main + 1) % len(menu_options)
-                elif event.key == pygame.K_RETURN:
-                    if selected_main == 0:  # Start Game selected
-                        game()
-                    elif selected_main == 1:  # Exit selected
-                        running = False
-                        sys.exit()
-                    elif selected_main == 2:  # Settings selected
-                        setting()
-
-        draw_menu()
-
-def draw_game():
-    screen.fill(SCREEN_COLOR)
-    title_text = "GAME"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
-    screen.blit(scaled_title, title_rect.topleft)
-
-    pygame.display.flip()
-
-def game():
-    global selected_game
-    global running
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-
-        draw_game()
-
-# setting options
-setting_options = ["Sound"]
-selected_setting = 0
-
-def draw_setting():
-    screen.fill(SCREEN_COLOR)
-    title_text = "SETTINGS"
-    title_surface = TITLE_FONT.render(title_text, True, TITLE_COLOR)
-    scaled_title = pygame.transform.scale(title_surface, 
-                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
-    screen.blit(scaled_title, title_rect.topleft)
-
-    # Setting options
-    for i, option in enumerate(setting_options):
-        color = TITLE_COLOR
-        option_surface = BUTTON_FONT.render(option, True, color)
-        scaled_option = pygame.transform.scale(option_surface, 
-                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
-                                                 * PIXEL_SIZE))
-        option_rect = scaled_option.get_rect(center=(len(option) * BASE_FONT_SIZE + 30, HEIGHT // 2 + i * 80))
-        screen.blit(scaled_option, option_rect.topleft)
-
-    pygame.display.flip()
-
-def setting():
-    global selected_setting
-    global running
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-                sys.exit()
-
-        draw_setting()
-
-def sound():
-    pass
-
-def start_game():
-    main_menu()
-
-if __name__ == "__main__":
-    start_game()
+# Quit Pygame
+pygame.quit()
+sys.exit()
