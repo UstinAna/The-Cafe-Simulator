@@ -60,6 +60,7 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     selected_main = (selected_main - 1) % len(menu_options)
@@ -70,6 +71,7 @@ def main_menu():
                         game()
                     elif selected_main == 1:  # Exit selected
                         running = False
+                        sys.exit()
                     elif selected_main == 2:  # Settings selected
                         setting()
 
@@ -94,11 +96,12 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                sys.exit()
 
         draw_game()
 
 # setting options
-setting_options = ["Soundqwaejbgeskga"]
+setting_options = ["Sound"]
 selected_setting = 0
 
 def draw_setting():
@@ -117,7 +120,7 @@ def draw_setting():
         scaled_option = pygame.transform.scale(option_surface, 
                                                (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
                                                  * PIXEL_SIZE))
-        option_rect = scaled_option.get_rect(center=(len(option) * 20 + 30, HEIGHT // 2 + i * 80))
+        option_rect = scaled_option.get_rect(center=(len(option) * BASE_FONT_SIZE + 30, HEIGHT // 2 + i * 80))
         screen.blit(scaled_option, option_rect.topleft)
 
     pygame.display.flip()
@@ -130,6 +133,7 @@ def setting():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                sys.exit()
 
         draw_setting()
 
