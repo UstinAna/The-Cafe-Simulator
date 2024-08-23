@@ -10,18 +10,18 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cafe Simulator")
 
 # Set up fonts and colors
-BASE_FONT_SIZE = 20  # Smaller base font size
+BASE_FONT_SIZE = 20
 MENU_FONT = pygame.font.Font(None, BASE_FONT_SIZE)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (100, 100, 100)
 
 # Menu options
-menu_options = ["Start Game", "Exit"]
+menu_options = ["Start Game", "Exit", "Settings"]
 selected_option = 0
 
 # Pixel size for the pixelated effect
-PIXEL_SIZE = 5  # Smaller pixel size to control text size
+PIXEL_SIZE = 5
 
 def draw_pixelated_text(text, x, y, color, pixel_size):
     for i, char in enumerate(text):
@@ -46,15 +46,14 @@ def draw_menu():
         color = WHITE if i == selected_option else GRAY
         option_surface = MENU_FONT.render(option, True, color)
         scaled_option = pygame.transform.scale(option_surface, 
-                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height() * PIXEL_SIZE))
+                                               (option_surface.get_width() * PIXEL_SIZE, option_surface.get_height()
+                                                 * PIXEL_SIZE))
         option_rect = scaled_option.get_rect(center=(WIDTH // 2, HEIGHT // 2 + i * 80))
         screen.blit(scaled_option, option_rect.topleft)
 
     pygame.display.flip()
 
 def main_menu():
-    global selected_option
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -67,17 +66,38 @@ def main_menu():
                 elif event.key == pygame.K_DOWN:
                     selected_option = (selected_option + 1) % len(menu_options)
                 elif event.key == pygame.K_RETURN:
-                    if selected_option == 0:
+                    if selected_option == 0:  # Start Game selected
                         start_game()
-                    elif selected_option == 1:
+                    elif selected_option == 1:  # Exit selected
                         pygame.quit()
                         sys.exit()
+                    elif selected_option == 2:  # Settings selected
+                        setting()
 
         draw_menu()
 
+def draw_game():
+    screen.fill(BLACK)
+
+def game():
+    pass
+
+def draw_setting():
+    screen.fill(BLACK)
+    title_text = "SETTINGS"
+    title_surface = MENU_FONT.render(title_text, True, WHITE)
+    scaled_title = pygame.transform.scale(title_surface, 
+                                          (title_surface.get_width() * PIXEL_SIZE, title_surface.get_height() * PIXEL_SIZE))
+    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 4))
+    screen.blit(scaled_title, title_rect.topleft)
+
+def setting():
+    pass
+
 def start_game():
     print("Starting the game...")
-    # Here you would transition to your game logic
+    # Game logic goes here
+    # Once the game is done, return to the main menu if needed
     main_menu()
 
 if __name__ == "__main__":
