@@ -90,7 +90,7 @@ def draw_menu():
         menu_buttons.append(option_rect)  # Store button rect
         screen.blit(scaled_option, option_rect.topleft)
 
-    pygame.display.flip()
+    pygame.display.flip() 
 
 def main_menu():
     global selected_main
