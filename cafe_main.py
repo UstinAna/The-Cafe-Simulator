@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 # Initialize Pygame
 pygame.init()
@@ -9,20 +10,32 @@ WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cafe Simulator")
 
+# Constructing paths using os.path
+base_path = os.path.dirname(__file__)  # Directory of the script
+asset_path = os.path.join(base_path, 'asset')  # Path to the asset directory
+
 # Load and set up sound and music
 try:
-    my_music = pygame.mixer.Sound("asset/ordinary-loop-minimal-piano-182046.mp3")
+    my_music = pygame.mixer.Sound(os.path.join(asset_path, "ordinary-loop-minimal-piano-182046.mp3"))
     my_music.play(-1)
     my_music.set_volume(1)
-except pygame.error:
-    print("Error loading music file.")
+except FileNotFoundError:
+    print("Music file not found. Please ensure 'ordinary-loop-minimal-piano-182046.mp3' is in the 'asset' folder.")
+    my_music = None
+except pygame.error as e:
+    print(f"Error loading music file: {e}")
+    my_music = None
     
 try:
-    my_sound = pygame.mixer.Sound("asset/chinese-beat-190047.mp3")
+    my_sound = pygame.mixer.Sound(os.path.join(asset_path, "chinese-beat-190047.mp3"))
     my_sound.set_volume(1)
     my_sound.play(-1)
-except pygame.error:
-    print("Error loading sound file.")
+except FileNotFoundError:
+    print("Sound file not found. Please ensure 'chinese-beat-190047.mp3' is in the 'asset' folder.")
+    my_sound = None
+except pygame.error as e:
+    print(f"Error loading sound file: {e}")
+    my_sound = None
 
 # Set up fonts and colors
 BASE_FONT_SIZE = 18
@@ -38,8 +51,20 @@ PIXEL_SIZE = 5
 
 # Menu options
 menu_options = ["Start Game", "Settings", "Exit"]
+setting_options = ["Music", "Sound"]
 menu_buttons = []
 selected_main = -1  # default selected option while mouse not hovering them
+
+# Slider settings
+slider_pos = [my_music.get_volume() if my_music else 0, my_sound.get_volume() if my_sound else 0]  # Slider position (0.0 to 1.0)
+slider_x = [0, 0]
+slider_y = [0, 0]
+slider_width = 300
+slider_height = 10
+handle_width = 20
+handle_height = 30
+SLIDER_COLOR = (200, 200, 200)
+HANDLE_COLOR = TITLE_COLOR
 
 def render_text(text, font, color, scale_factor):
     surface = font.render(text, True, color)
@@ -86,24 +111,16 @@ def main_menu():
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if selected_main == 0:  # Start Game selected
-                    game()
+                    game()  # This will transition to the game loop
                 elif selected_main == 2:  # Exit selected
                     pygame.quit()
                     sys.exit()
                 elif selected_main == 1:  # Settings selected
-                    setting()
+                    setting()  # Transition to settings
 
         draw_menu()
 
-# Game
-def draw_game():
-    screen.fill(SCREEN_COLOR)
-    scaled_title = render_text("GAME", TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
-    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 6))
-    screen.blit(scaled_title, title_rect.topleft)
-
-    pygame.display.flip()
-
+# Game loop
 def game():
     while True:
         for event in pygame.event.get():
@@ -113,20 +130,15 @@ def game():
 
         draw_game()
 
-# Setting options
-setting_options = ["Music", "Sound"]
+def draw_game():
+    screen.fill(SCREEN_COLOR)
+    scaled_title = render_text("GAME", TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
+    title_rect = scaled_title.get_rect(center=(WIDTH // 2, HEIGHT // 6))
+    screen.blit(scaled_title, title_rect.topleft)
 
-# Slider settings
-slider_pos = [my_music.get_volume(), my_sound.get_volume()]  # Slider position (0.0 to 1.0)
-slider_x = [0, 0]
-slider_y = [0, 0]
-slider_width = 300
-slider_height = 10
-handle_width = 20
-handle_height = 30
-SLIDER_COLOR = (200, 200, 200)
-HANDLE_COLOR = TITLE_COLOR
+    pygame.display.flip()
 
+# Setting menu
 def draw_setting():
     screen.fill(SCREEN_COLOR)
     scaled_title = render_text("SETTINGS", TITLE_FONT, TITLE_COLOR, PIXEL_SIZE)
@@ -137,7 +149,7 @@ def draw_setting():
     for i, option in enumerate(setting_options):
         color = TITLE_COLOR
         hight = HEIGHT // 3
-        option_text = option + " " + str(int(slider_pos[i] * 100))
+        option_text = f"{option}: {int(slider_pos[i] * 100)}"
         scaled_option = render_text(option_text, BUTTON_FONT, color, PIXEL_SIZE)
         option_rect = scaled_option.get_rect(topleft=(50, hight + i * 80))
         screen.blit(scaled_option, option_rect.topleft)
@@ -176,15 +188,15 @@ def setting():
                 if selected_slider is not None:
                     new_pos = (event.pos[0] - slider_x[selected_slider]) / slider_width
                     slider_pos[selected_slider] = max(0, min(1, new_pos))  # Clamp value between 0 and 1
-                    if selected_slider == 0:
+                    if selected_slider == 0 and my_music:
                         my_music.set_volume(slider_pos[selected_slider])
-                    elif selected_slider == 1:
+                    elif selected_slider == 1 and my_sound:
                         my_sound.set_volume(slider_pos[selected_slider])
 
         draw_setting()
 
 def start_game():
-    main_menu()
+    main_menu()  # Call main_menu() only once to start the game
 
 if __name__ == "__main__":
-    start_game()
+    start_game()  # Ensure only this function is called at the start
