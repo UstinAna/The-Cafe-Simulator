@@ -32,12 +32,13 @@ def draw_sidebar(selected_option=None, current_option=0):
         # Text color based on selection
         text_color = config.LEFTMENU_SELECTED_COLOR if idx == selected_option else config.LEFTMENU_UNSELECTED_COLOR
         
-        render_text(option, config.BUTTON_FONT, text_color, (20, config.LEFTMENU_TEXT_y + idx * 60 + 30))
+        render_text(option, config.BUTTON_FONT, text_color, (20, config.LEFTMENU_TEXT_y + idx * 60 + 15))
 
 def handle_option_selection(option_index):
     """ Handles the logic for when an option is selected. """
     if option_index == 0:
         print("Weekly Purchases selected")
+        weekly_purchase()
         # Add logic to transition to the Weekly Purchases screen or view
     elif option_index == 1:
         print("Staffing & Hours selected")
@@ -82,6 +83,27 @@ def game():
         draw_sidebar(selected_option=selected_sidebar, current_option=current_option)
 
         pygame.display.flip()
+
+def weekly_purchase():
+    pass
+
+def staffing_hours():
+    pass
+
+def marketing():
+    pass
+
+def special_decision():
+    pass
+
+def decision_summary():
+    pass
+
+def cash_budget_analysis():
+    pass
+
+def break_even_worksheet():
+    pass
 
 if __name__ == "__main__":
     pygame.init()
