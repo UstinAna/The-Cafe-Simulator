@@ -4,6 +4,13 @@ import sys
 import config
 import cafe_game
 
+# Load and set up sound and music
+config.my_music.play(-1)
+config.my_music.set_volume(1)
+
+config.my_sound.set_volume(1)
+config.my_sound.play(-1)
+
 menu_options = ["Start Game", "Settings", "Exit"]
 setting_options = ["Music", "Sound"]
 menu_buttons = []
@@ -33,7 +40,7 @@ def draw_menu():
     for i, option in enumerate(menu_options):
         color = config.SELECTED_COLOR if i == selected_main else config.UNSELECTED_COLOR
         scaled_option = render_text(option, config.BUTTON_FONT, color, config.PIXEL_SIZE)
-        option_rect = scaled_option.get_rect(center=(config.WIDTH // 2, config.HEIGHT // 2 + i * 80))
+        option_rect = scaled_option.get_rect(center=(config.WIDTH // 2, config.HEIGHT // 2 + i * config.TEXT_DISTANCE))
         menu_buttons.append(option_rect)  # Store button rect
         config.screen.blit(scaled_option, option_rect.topleft)
 
@@ -80,13 +87,13 @@ def draw_setting():
         hight = config.HEIGHT // 3
         option_text = f"{option}: {int(config.slider_pos[i] * 100)}"
         scaled_option = render_text(option_text, config.BUTTON_FONT, color, config.PIXEL_SIZE)
-        option_rect = scaled_option.get_rect(topleft=(50, hight + i * 80))
+        option_rect = scaled_option.get_rect(topleft=(50, hight + i * config.TEXT_DISTANCE))
         config.screen.blit(scaled_option, option_rect.topleft)
         
         # Draw slider
-        option_rect2 = scaled_option.get_rect(topleft=(400, hight + i * 80 - 30 - config.slider_height // 2))
+        option_rect2 = scaled_option.get_rect(topleft=(400, hight + i * config.TEXT_DISTANCE - 30 - config.slider_height // 2))
         slider_x[i] = option_rect2.bottomleft[0] + 10
-        slider_y[i] = option_rect2.bottomleft[1] - config.handle_height // 2 + config.slider_height // 2
+        slider_y[i] = option_rect2.bottomleft[1] - config.handle_height // 2
         pygame.draw.rect(config.screen, config.SLIDER_COLOR, (slider_x[i], slider_y[i] + 10, config.slider_width, config.slider_height))
         handle_x = slider_x[i] + config.slider_pos[i] * config.slider_width - config.handle_width // 2
         pygame.draw.rect(config.screen, config.HANDLE_COLOR, (handle_x, slider_y[i], config.handle_width, config.handle_height))
@@ -131,3 +138,4 @@ def main():
 
 if __name__ == "__main__":
     main()  # Ensure this is only called once
+    # setting()
