@@ -1,5 +1,7 @@
 # Introducing the Cafe Simulator: A Hands-On Learning Experience for First-Year Management Students
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 ## Overview
 The **Cafe Simulator** is an innovative educational tool designed specifically for first-year university management students. This interactive platform offers a practical, engaging way for students to learn and apply essential business management concepts by running their own virtual cafe. The simulator provides a comprehensive experience that bridges the gap between theoretical knowledge and real-world application, making it an invaluable resource for students beginning their journey in the field of management.
 
